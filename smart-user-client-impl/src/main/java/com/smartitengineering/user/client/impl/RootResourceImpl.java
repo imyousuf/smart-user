@@ -13,6 +13,7 @@ import com.smartitengineering.util.rest.client.ResourceLink;
 import com.smartitengineering.util.rest.client.jersey.cache.CacheableClientConfigProps;
 import com.sun.jersey.api.client.config.ClientConfig;
 import com.sun.jersey.atom.abdera.impl.provider.entity.FeedProvider;
+import com.sun.jersey.client.apache.config.ApacheHttpClientConfig;
 import java.net.URISyntaxException;
 import org.apache.abdera.model.Feed;
 
@@ -25,6 +26,7 @@ public class RootResourceImpl
     implements RootResource {
 
   public static final String REL_LOGIN = "Login";
+
   public static RootResource getInstance() {
 
     return new RootResourceImpl();
@@ -46,11 +48,16 @@ public class RootResourceImpl
   }
 
   public ResourceLink getLoginLink() {
-    return  getRelatedResourceUris().getFirst(REL_LOGIN);
+    return getRelatedResourceUris().getFirst(REL_LOGIN);
   }
 
   @Override
   protected void processClientConfig(ClientConfig clientConfig) {
+    if (clientConfig instanceof ApacheHttpClientConfig) {
+      ApacheHttpClientConfig apacheClientConfig = (ApacheHttpClientConfig) clientConfig;
+      apacheClientConfig.getState().setCredentials(null, null, -1, LoginCenter.getUsername(), LoginCenter.getPassword());
+    }
+    clientConfig.getProperties().put(ApacheHttpClientConfig.PROPERTY_PREEMPTIVE_AUTHENTICATION, Boolean.TRUE);
     clientConfig.getProperties().put(CacheableClientConfigProps.USERNAME, LoginCenter.getUsername());
     clientConfig.getProperties().put(CacheableClientConfigProps.PASSWORD, LoginCenter.getPassword());
     clientConfig.getClasses().add(JacksonJsonProvider.class);

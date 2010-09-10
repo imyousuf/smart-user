@@ -9,8 +9,9 @@ import com.smartitengineering.util.rest.client.HttpClient;
 import com.smartitengineering.util.rest.client.jersey.cache.CacheableClient;
 import com.smartitengineering.util.rest.client.jersey.cache.CacheableClientConfigProps;
 import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.config.DefaultClientConfig;
 import com.sun.jersey.atom.abdera.impl.provider.entity.FeedProvider;
+import com.sun.jersey.client.apache.config.ApacheHttpClientConfig;
+import com.sun.jersey.client.apache.config.DefaultApacheHttpClientConfig;
 import java.net.URI;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import javax.ws.rs.core.UriBuilder;
@@ -49,7 +50,9 @@ public class AbstractClientImpl {
 
   public Client getClient() {
     if (client == null) {
-      DefaultClientConfig clientConfig = new DefaultClientConfig();
+      DefaultApacheHttpClientConfig clientConfig = new DefaultApacheHttpClientConfig();
+      clientConfig.getState().setCredentials(null, null, -1, LoginCenter.getUsername(), LoginCenter.getPassword());
+      clientConfig.getProperties().put(ApacheHttpClientConfig.PROPERTY_PREEMPTIVE_AUTHENTICATION, Boolean.TRUE);
       clientConfig.getProperties().put(CacheableClientConfigProps.USERNAME, LoginCenter.getUsername());
       clientConfig.getProperties().put(CacheableClientConfigProps.PASSWORD, LoginCenter.getPassword());
       clientConfig.getClasses().add(FeedProvider.class);
